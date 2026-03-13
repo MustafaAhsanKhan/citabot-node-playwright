@@ -1,0 +1,524 @@
+<form name="procedimientos" action="salirInicio" method="post"><input type="hidden" name="b0ac7504-3362-4ddd-82c1-2b25b83d4560" value="62b2730a-4941-490c-aa0c-cfa4734789bc"><input type="hidden" name="48ba01aa-7182-4ad9-9eb2-40e563bb1ca7" value="">
+						<input type="hidden" name="Con.msgRelleneCampos" id="Con.msgRelleneCampos" value="Por favor, rellena todos los campos obligatorios del formulario de cita previa.">
+						<div class="layout--content">
+
+							<div>
+
+								<fieldset>
+									<legend class="mf-paragraph-header">Identidad del usuario de cita</legend>
+									<span>EXAMPLE USER -  X0000000T</span>
+								</fieldset>
+								<fieldset class="mf-main--content show_code">
+									<legend class="mf-paragraph-header">INFORMACIÓN COMPLEMENTARIA</legend>
+									<br>
+
+									<div id="divtxtTelefonoCitado" class="fld">
+										<label for="txtTelefonoCitado" class="required"><span>Teléfono</span><span class="fld-help">Campo obligatorio</span></label> <input type="hidden" id="txtTelefonoMultiidioma" value="Teléfono">
+										<input type="tel" autocomplete="tel-national" size="13" maxlength="14" class="cajapeque" title="Teléfono" required="required" id="txtTelefonoCitado" name="txtTelefonoCitado" value=""> 6XXXXXXXX
+										<div class="error">
+											<ul class="error_list">
+
+												<li id="txtTelefonoCitadoError"></li>
+											</ul>
+										</div>
+									</div>
+
+
+									<div class="fld"><div id="comp15_email">
+		<input type="hidden" id="No_coinciden_las_direciones_de_Email_introducidas" value="No coinciden las direciones de Correo electrónico introducidas">
+		<input type="hidden" id="La_direccion_de_correo_no_es_valida" value="La dirección de correo no es válida">
+
+		<div id="divEmailUNO" class="fld">
+			<label for="emailUNO" class="required"><span>Correo electrónico</span><span class="fld-help">Campo obligatorio</span></label> <input type="hidden" id="txtEmailMultiidioma" value="Correo electrónico">
+			<input type="email" id="emailUNO" autocomplete="email" size="100" maxlength="100" class="mf-input__l" title="Correo electrónico" required="required" name="txtMailCitado" value="">   correo@ejemplo.com
+			<div class="error" role="alert">
+				<ul class="error_list">
+
+					<li id="emailUNOError"></li>
+				</ul>
+			</div>
+		</div>
+		<div id="divEmailDOS" class="fld">
+			<label for="emailDOS" class="required"><span>Repite Correo electrónico</span><span class="fld-help">Campo obligatorio</span></label>
+			<input type="email" autocomplete="off" size="100" maxlength="100" class="mf-input__l noPaste" title="Correo electrónico" required="required" id="emailDOS" name="emailDOS" value="">   correo@ejemplo.com
+			<div class="error" role="alert">
+				<ul class="error_list">
+
+					<li id="emailDOSError"></li>
+				</ul>
+			</div>
+		</div>
+		<div class="fld">
+			<span>Asegúrate de introducir un correo electrónico válido donde te enviarán el justificante de la reserva de cita </span><br>&nbsp;
+		</div>
+		<script type="text/javascript">
+		function validaComp15_email(){
+
+			$("#emailUNOError").html("");
+			$("#emailDOSError").html("");
+			$("#divEmailUNO").removeClass("error");
+			$("#divEmailDOS").removeClass("error");
+			var emailUNO = document.getElementById('emailUNO').value;
+			var emailDOS = document.getElementById('emailDOS').value;
+
+
+			if (emailUNO!="" || emailDOS!="")
+			{
+				if (emailUNO.toUpperCase() != emailDOS.toUpperCase() ){
+					$("#emailDOSError").html($("#No_coinciden_las_direciones_de_Email_introducidas").val());
+					$("#divEmailUNO").addClass("error");
+					$("#divEmailDOS").addClass("error");
+					$("#emailUNO").focus();
+					return false;
+				}
+				if (!esEmailCorrecto(emailUNO))
+				{
+					$("#emailUNOError").html($("#La_direccion_de_correo_no_es_valida").val());
+					$("#divEmailUNO").addClass("error");
+					$("#emailUNO").focus();
+					return false;
+				}
+			}
+			else if($("#emailUNO").attr("required")){
+				var strEsObliga = "Es un dato obligatorio";
+				try {
+					strEsObliga = document.getElementById("lit_es_dato_obligatorio").value;
+				} catch (err) {}
+				$("#emailUNOError").html(strEsObliga);
+				$("#divEmailUNO").addClass("error");
+				$("#emailUNO").focus();
+				return false;
+			}
+			return true;
+		}
+	</script>
+	</div></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+
+									<div><div id="comp_campConf">
+
+	</div></div>
+								</fieldset>
+							</div>
+						</div>
+
+
+						<div class="mf-layout--row layout--abajo">
+							<input id="btnSiguiente" type="button" class="mf-button primary" value="Siguiente" onclick="enviar()"> <input id="btnSalir" type="button" class="mf-button secondary" value="Salir" onclick="goAc_opc_direct()">
+						</div>
+					</form>

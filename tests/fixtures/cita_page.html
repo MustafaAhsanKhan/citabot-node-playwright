@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+<form name="procedimientos" action="acVerificarCita" method="post">
+    <fieldset>
+        <legend>Selecciona una de las siguientes citas disponibles</legend>
+        <div class="mf-layout--row">
+            <div id="cita_1" class="mf-layout--module__s tc">
+                <label id="lCita_1" for="cita1">
+                    <strong>CITA 1</strong><br>
+                    <span>Día</span>: <span>17/02/2026</span><br>
+                    <span>Hora</span>: <span>09:50</span><br>
+                </label>
+                <input type="radio" id="cita1" name="rdbCita" value="1">
+            </div>
+            <div id="cita_2" class="mf-layout--module__s tc">
+                <label id="lCita_2" for="cita2">
+                    <strong>CITA 2</strong><br>
+                    <span>Día</span>: <span>18/02/2026</span><br>
+                    <span>Hora</span>: <span>09:30</span><br>
+                </label>
+                <input type="radio" id="cita2" name="rdbCita" value="2">
+            </div>
+            <div id="cita_3" class="mf-layout--module__s tc">
+                <label id="lCita_3" for="cita3">
+                    <strong>CITA 3</strong><br>
+                    <span>Día</span>: <span>19/02/2026</span><br>
+                    <span>Hora</span>: <span>09:30</span><br>
+                </label>
+                <input type="radio" id="cita3" name="rdbCita" value="3">
+            </div>
+        </div>
+    </fieldset>
+    <input id="btnSiguiente" type="submit" value="Siguiente">
+</form>
+</body>
+</html>

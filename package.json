@@ -1,0 +1,36 @@
+{
+  "name": "cita-bot-playwright",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "test": "tsc && node --test \"dist/tests/**/*.test.js\"",
+    "test:unit": "tsc && node --test \"dist/tests/unit/*.test.js\"",
+    "test:integration": "tsc && node --test \"dist/tests/integration/*.test.js\"",
+    "test:browser": "tsc && node dist/test.js",
+    "proxy": "node proxy.js",
+    "mock": "tsc && node dist/mock-server/index.js",
+    "mock:server": "node dist/mock-server/index.js",
+    "mock:bot": "tsc && start-server-and-test mock:server http://localhost:3999/icpco/citar start",
+    "record:manual": "tsc && node dist/record-manual.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "start-server-and-test": "^2.0.3"
+  },
+  "dependencies": {
+    "axios": "^1.13.4",
+    "ghost-cursor-playwright": "^2.1.0",
+    "https-proxy-agent": "^7.0.6",
+    "patchright": "^1.57.0"
+  }
+}

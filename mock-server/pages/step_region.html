@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Cita Previa - Selecciona Provincia</title>
+</head>
+<body>
+<form action="index.html" method="post" class="fld">
+    <div id="divProvincias" class="fld">
+        <label for="form">PROVINCIAS DISPONIBLES</label>
+        <select id="form" name="form" autocomplete="address-level1">
+            <option value="">Selecciona Provincia ...</option>
+            <option value="/icpco/citar?p=3&amp;locale=es">Alicante</option>
+            <option value="/icpplus/citar?p=2&amp;locale=es">Albacete</option>
+        </select>
+    </div>
+    <div class="mf-layout--row layout--abajo">
+        <input id="btnAceptar" onclick="envia()" value="Aceptar" class="mf-button primary" type="button">
+    </div>
+</form>
+<script>
+function envia() {
+    var sel = document.getElementById('form');
+    var val = sel.value;
+    if (val) window.location.href = val;
+}
+</script>
+</body>
+</html>

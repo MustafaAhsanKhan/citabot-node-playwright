@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build output
+dist/
+build/
+*.js
+*.d.ts
+*.js.map
+!jest.config.js
+!.eslintrc.js
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+config.json
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+.project
+.classpath
+.settings/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.history/
+
+# OS specific
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Chrome profiles (contain cookies, cache, extension state)
+profiles/*
+!profiles/README.md
+
+# Logs and stats
+logs/
+stats/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.parcel-cache/

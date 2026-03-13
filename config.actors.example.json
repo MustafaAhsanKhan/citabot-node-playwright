@@ -1,0 +1,65 @@
+{
+  "actors": [
+    {
+      "id": "actor_reference",
+      "typing": { "baseDelay": 60, "delayVariance": 30, "mistakeChance": 0 },
+      "typingPressDelay": [60, 100],
+      "cursor": {
+        "overshootSpread": 5, "overshootRadius": 5, "debug": false,
+        "waitBeforeMove": [50, 200], "waitBeforeClick": [100, 300], "waitBetweenClick": [50, 150],
+        "scrollDelay": [100, 200], "maxScrollStep": 2000, "moveRandomRange": [100, 200]
+      },
+      "pipeline": { "delayBetweenActions": [800, 1500], "delayBeforeFirstAction": [500, 1000], "delayBeforeLastAction": [500, 600] }
+    },
+    {
+      "id": "actor_2",
+      "typing": { "baseDelay": 45, "delayVariance": 25, "mistakeChance": 0.01 },
+      "typingPressDelay": [50, 90],
+      "cursor": { "waitBeforeMove": [40, 180], "moveRandomRange": [80, 180] },
+      "pipeline": { "delayBetweenActions": [600, 1200] }
+    },
+    {
+      "id": "actor_3",
+      "typing": { "baseDelay": 75, "delayVariance": 35, "mistakeChance": 0.02 },
+      "typingPressDelay": [70, 120],
+      "cursor": { "waitBeforeMove": [60, 220], "moveRandomRange": [120, 220] },
+      "pipeline": { "delayBetweenActions": [900, 1600] }
+    },
+    {
+      "id": "actor_4",
+      "typing": { "baseDelay": 50, "delayVariance": 20, "mistakeChance": 0 },
+      "cursor": { "moveRandomRange": [90, 190] }
+    },
+    {
+      "id": "actor_5",
+      "typing": { "baseDelay": 70, "delayVariance": 40, "mistakeChance": 0.03 },
+      "pipeline": { "delayBetweenActions": [1000, 1800] }
+    },
+    {
+      "id": "actor_6",
+      "typing": { "baseDelay": 55, "delayVariance": 28, "mistakeChance": 0.015 },
+      "typingPressDelay": [55, 95]
+    },
+    {
+      "id": "actor_7",
+      "typing": { "baseDelay": 65, "delayVariance": 32 },
+      "cursor": { "waitBeforeClick": [120, 280] }
+    },
+    {
+      "id": "actor_8",
+      "typing": { "baseDelay": 40, "delayVariance": 22, "mistakeChance": 0.005 },
+      "pipeline": { "delayBetweenActions": [500, 1000] }
+    },
+    {
+      "id": "actor_9",
+      "typing": { "baseDelay": 80, "delayVariance": 38, "mistakeChance": 0.025 },
+      "cursor": { "moveRandomRange": [110, 210] }
+    },
+    {
+      "id": "actor_10",
+      "typing": { "baseDelay": 58, "delayVariance": 26 },
+      "cursor": { "scrollDelay": [120, 220] },
+      "pipeline": { "delayBeforeLastAction": [600, 700] }
+    }
+  ]
+}

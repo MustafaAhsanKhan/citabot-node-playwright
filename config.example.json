@@ -1,0 +1,38 @@
+{
+  "browserProfile": "test",
+  "rotateProxyOnTramiteBlock": true,
+  "location": "3",
+  "tramiteLabel": "POLICÍA TARJETA CONFLICTO UCRANIA–ПОЛІЦІЯ -КАРТКА ДЛЯ ПЕРЕМІЩЕНИХ ОСІБ ВНАСЛІДОК КОНФЛІКТУ В УКРАЇНІ",
+  "offices": [
+    "CNP Alcoy, Placeta Les Xiques",
+    "Another Office Name"
+  ],
+  "minCitaDate": "2026-02-15",
+  "personalData": {
+    "nie": "your_nie",
+    "nombre": "your name",
+    "telefono": "6XXXXXXXX",
+    "email": "your@email.com"
+  },
+  "keepBrowserOpenOnFailure": true,
+  "notifications": {
+    "failureCountThreshold": 5,
+    "criticalAfterSeconds": 60,
+    "homeassistant": {
+      "url": "http://homeassistant.local:8123",
+      "token": "your_long_lived_token"
+    }
+  },
+  "proxies": [
+    {
+      "server": "proxy1.example.com:port",
+      "username": "user1",
+      "password": "pass1"
+    },
+    {
+      "server": "proxy2.example.com:port",
+      "username": "user2",
+      "password": "pass2"
+    }
+  ]
+}

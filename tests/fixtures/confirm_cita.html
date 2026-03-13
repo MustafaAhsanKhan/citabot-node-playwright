@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<body>
+<form name="procedimientos" id="citadoForm" action="acGrabarCita" method="post">
+    <fieldset>
+        <legend>Datos de la Cita</legend>
+        <div class="fld">
+            <span class="label">Día de la cita</span>
+            <span class="mf-psdinput">19/02/2026</span>
+        </div>
+        <div class="fld">
+            <span class="label">Hora cita</span>
+            <span class="mf-psdinput">09:30</span>
+        </div>
+    </fieldset>
+    <div id="divVerificacionCita">
+        <label for="txtCodigoVerificacion">Código:</label>
+        <input type="text" id="txtCodigoVerificacion" name="txtCodigoVerificacion" size="12" maxlength="12">
+    </div>
+    <div>
+        <input name="chkTotal" id="chkTotal" type="checkbox" value="1">
+        <label for="chkTotal">Estoy conforme con la información mostrada en pantalla.</label>
+    </div>
+    <input id="btnEnviar" type="submit" value="Enviar">
+</form>
+</body>
+</html>

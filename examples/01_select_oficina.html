@@ -1,0 +1,33 @@
+<form name="procedimientos" action="salirInicio" method="post"><input type="hidden" name="b4966d0d-65a6-47a0-b2d4-70bf36c2691b" value="bc2f5075-0d61-49c4-9c80-b10a70e1daec"><input type="hidden" name="703f2694-2787-48f2-b29e-9948ef098097" value="">
+
+	<fieldset>
+		<legend class="mf-paragraph-header">Identidad del usuario de cita</legend>
+		<span>EXAMPLE USER -  X0000000T</span>
+
+	</fieldset>
+
+	<div>
+		<fieldset>
+			<!-- 							<legend th:text="#{msj_selecciones_cita}"> </legend> -->
+
+			<div class="fld">
+				<label for="idSede">Selecciona Oficina:</label>
+				<select id="idSede" data-live-search="true" title="Selecciona Oficina" data-size="10" class="mf-input__xl" name="idSede">
+
+					<option value="12">CNP Alcoy, Placeta Les Xiques, S/N, Alcoy</option>
+				</select>
+				<span id="alert_seleccion_provincia_sede" class="error" style="display: none">Información de CITA PREVIA:
+
+Debes seleccionar la oficina donde quieres solicitar la cita.</span>
+			</div>
+
+			<!-- 							<p th:text="#{msj_oficina_seleccionada}"></p> -->
+		</fieldset>
+	</div>
+
+
+	<div class="mf-layout--row layout--abajo">
+		<input id="btnSiguiente" type="button" class="mf-button primary" value="Siguiente" onclick="enviar()">
+		<input id="btnSalir" type="button" class="mf-button secondary" value="Salir" onclick="goAc_opc_direct()">
+	</div>
+</form>
