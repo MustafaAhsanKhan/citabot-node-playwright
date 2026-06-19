@@ -1,7 +1,7 @@
 # CitaBot → Barcelona toma-de-huellas watcher
 
 **Date:** 2026-06-19
-**Status:** Approved design (pre-implementation)
+**Status:** Revised per plan review (pre-implementation) — Must-Fix items from review folded in
 
 ## 1. Goal
 
@@ -48,34 +48,71 @@ slot is chosen during manual booking. Hence the watcher never reaches it.
 
 ## 4. New pipeline (5 steps, replacing the current 8)
 
-| # | StepId | Page | Actions |
-|---|--------|------|---------|
-| 0 | OpenAndSelect | entry | navigate to `entryPath`; dismiss cookie banner if present; leave `#sede` = "Cualquier oficina"; `select('#tramiteGrupo[0]', { label: tramiteLabel })`; click `#btnAceptar` |
-| 1 | Entrar | acInfo | wait `#btnEntrar`; click (unchanged) |
-| 2 | PersonalId | NIE | type `#txtIdCitado` = nie; type `#txtDesCitado` = nombre; `select('#txtPaisNac', { label: nacionalidad })`; click `#btnEnviar` |
-| 3 | SolicitarCita | confirm | wait `#btnEnviar`; click (unchanged selector) |
-| 4 | CitaCheck | result | by-negation: see §5 |
+| # | File / StepId | Page | Actions |
+|---|---------------|------|---------|
+| 0 | `00-selectRegion.ts` / `StepId.RegionSelect` | entry | navigate to `config.entryPath`; dismiss cookie banner if present; `select('#sede', { value: '99' })` ("Cualquier oficina") **to fire `cargaTramites()`**; **wait for `#tramiteGrupo\[0\]` options to populate** (`waitForSelector('#tramiteGrupo\\[0\\] option', …)`); `select('#tramiteGrupo\\[0\\]', { label: config.tramiteLabel })`; `move`+`click` `#btnAceptar` |
+| 1 | `02-entrar.ts` / `StepId.Entrar` | acInfo | wait `#btnEntrar`; `move`+`click` (unchanged) |
+| 2 | `03-personalId.ts` / `StepId.PersonalId` | NIE | `click`+`type` `#txtIdCitado` = nie; `type` `#txtDesCitado` = nombre; `select('#txtPaisNac', { label: config.personalData.nacionalidad })`; `move`+`click` `#btnEnviar` |
+| 3 | `04-personalIdConfirm.ts` / `StepId.PersonalIdConfirm` | confirm | wait `#btnEnviar`; `move`+`click` (unchanged selector) |
+| 4 | `07-citaSelect.ts` / `StepId.CitaSelect` | result | bounded race, see §5 |
 
-`BotWalker` runs steps in order. **CitaCheck returning a success string flows into the
-runner's existing `notifyCitaFound` + `waitForEnter` (stop, browser stays open).** No
-change to the runner happy path.
+> **Selector escaping:** the bracketed ids are literal (form-array notation), not CSS attribute
+> selectors. They **must** be escaped (`#tramiteGrupo\\[0\\]`) or written as
+> `[id="tramiteGrupo[0]"]` — matching the existing `01-tramite.ts` (`#tramiteGrupo\\[1\\]`).
+> `#tramiteGrupo[0]` unescaped parses as "id=tramiteGrupo with attribute `[0]`" and will not match.
 
-Deleted steps: `01-tramite`, `05-office`, `06-personalContact`. Merged: office+tramite
-into step 0. `matchOffice` (`src/lib/office.ts`) becomes unused by the pipeline (file kept).
+**StepId reuse — do not invent new enum members.** The runner is coupled to specific `StepId`
+values: `runner.ts` references `StepId.RegionSelect` (initial `stepRef`, l.177), `StepId.Tramite`
+(tramite-block proxy rotation l.279/288/309 + the actor-probe call l.379), and `StepId.CitaSelect`
+(`keepBrowserOpenOnFailure` recovery, l.325). The 5 watcher steps therefore **reuse existing
+enum members** (`RegionSelect`, `Entrar`, `PersonalId`, `PersonalIdConfirm`, `CitaSelect`) so the
+runner keeps compiling and its recovery branches keep firing. `StepId.Tramite`, `StepId.Office`,
+`StepId.PersonalContact` stay in the enum (still referenced / now unused) — **do not delete them**;
+the tramite-block special-casing simply never matches in the watcher (a harmless no-op, not a break).
+
+`BotWalker` runs steps in order. **The final step (`StepId.CitaSelect`, the reused
+`07-citaSelect.ts`) returning a success string flows into the runner's existing `notifyCitaFound`
++ `waitForEnter` (stop, browser stays open).** No change to the runner happy path.
+
+Dropped from `defaultSteps` in `src/steps/index.ts` (files kept on disk): `01-tramite.ts`
+(merged into step 0), `05-office.ts` (any-office), `06-personalContact.ts` (page not reached).
+`matchOffice` (`src/lib/office.ts`) and the date parsers (`src/lib/parsers.ts`) become unused by
+the pipeline (files + unit tests kept green). Reusing `07-citaSelect.ts` means rewriting its
+`before`/`after` (§5); the numbered-step convention and `src/steps/index.ts` registration are
+preserved (non-contiguous numbering `00,02,03,04,07` is acceptable — renumbering is optional/cosmetic).
 
 ## 5. CitaCheck logic (the watcher core)
 
-After SolicitarCita submits, on the resulting page:
+The check lives in the rewritten `before` hook of the reused `07-citaSelect.ts`, mirroring the
+existing `Promise.race` there. **It must wait for the page to settle and race three explicit
+outcomes against a bounded timeout — never conclude success by pure absence-of-negative on an
+unsettled page.** Bare negation makes a false "cita found" representable (the page is still
+loading → bot reports success and stops → the watch ends while slots were never there).
 
-1. If body contains `En este momento no hay citas disponibles` → `throw RestartFromBeginning('No citas')` → runner sleeps randomized `pollDelaySeconds` and retries from step 0.
-2. Else if the page is the Imperva reject (`Request Rejected` / support ID, or path `/acInfo` with no flow content) → throw a back-off error (longer sleep), treated like bot-detection.
-3. Else (we are past "Solicitar Cita" and not on the no-citas page) → **return success** (`"Cita(s) available in Barcelona — book manually."`). Runner notifies + stops.
+After the confirm submit (step 3), wait for the navigation/response, then race (cap at
+`SELECTOR_TIMEOUT_MS`):
+
+1. **No citas** — `getByText('En este momento no hay citas disponibles')` visible →
+   `throw new RestartFromBeginning('No citas')` → runner sleeps randomized `pollDelaySeconds`
+   and retries from step 0.
+2. **WAF reject** — `getByText('The requested URL was rejected')` visible (the existing
+   `wait.ts` signal — detect by text, **not** by `/acInfo` path) → `throw new WafBackoffError()`
+   (new class, §8) → runner applies the long back-off + cookie clear.
+3. **Cita available (positive anchor)** — a known positive element of the result/slot page is
+   visible (slot container / result-form `#btnSubmit` / a slot radio) → **return**
+   `"Cita(s) available in Barcelona — book manually."`. Runner notifies + stops.
+
+If none resolves before the timeout → `throw new RetryError(…)` (transient), **not** success.
+**The positive anchor is unverified — the live result page was never reached (WAF blocked
+mapping), so it is the one selector the real-site dry run (§10.8) must confirm before the watcher
+is trusted.** Until confirmed, gate success on "no-citas absent **AND** a known result-page
+element present", never bare negation.
 
 No slot/date parsing. `minCitaDate` is not consulted (per "any cita" decision).
 
 ## 6. Config schema changes (`src/config.ts` + `config.json`)
 
-Add:
+Add to `config.json`:
 
 ```jsonc
 {
@@ -88,6 +125,23 @@ Add:
 }
 ```
 
+Matching `AppConfig` (`src/config.ts`) changes — keep types explicit so `tsc --strict` covers them:
+
+- `entryPath?: string` — default `'/icpco/citar'` retained as fallback (existing behavior when
+  unset). `00-selectRegion.ts` reads `config.entryPath` **instead of** the hard-coded
+  `REGION_SELECT_PATH` constant.
+- `pollDelaySeconds?: [number, number]` (tuple). Runner falls back to the current `5000` ms when
+  absent (§8).
+- `PersonalDataConfig.nacionalidad?: string`; make `telefono?` / `email?` **optional** (now unused
+  by the watcher) so a watcher-only `config.json` type-checks.
+- `notifications.telegram?: { botToken: string; chatId: string }`; extend the `citaFoundChannels`
+  union to `('email' | 'homeassistant' | 'telegram')[]`. Telegram fires whenever
+  `notifications.telegram` is present (independent of the channel list, matching how
+  `homeassistant` works today).
+
+Also add a `telegram` placeholder (no real values) to `config.example.json` and document it in
+the README. `config.json` is already git-ignored, so the user's real token / NIE / PII stay local.
+
 Kept but unused by the watcher: `location`, `offices`, `minCitaDate`, `personalData.telefono`,
 `personalData.email` (retained for reference / possible future auto-book). `homeassistant`
 notifications remain supported and optional.
@@ -96,7 +150,10 @@ notifications remain supported and optional.
 
 New `sendTelegram(cfg, { title, message })`:
 `POST https://api.telegram.org/bot<botToken>/sendMessage` with body `{ chat_id, text }`
-(text = `title` + newline + `message`). Fail-soft (log on error, never throw).
+(text = `title` + newline + `message`). Fail-soft (log on error, never throw). **The bot token is
+embedded in the URL — on error log only `res.status` / a generic message, never the URL or the
+request object, so the token can't leak into logs or `network-recorder` dumps.** Use the existing
+`axios` dependency (already in `package.json`) or `fetch`.
 
 Wire into `notifyCitaFound` (primary) and `notifyFailure` (secondary). Existing
 `callHomeAssistant` path unchanged; both fire if configured. Terminal `console.log`
@@ -104,32 +161,60 @@ remains as the always-on fallback.
 
 ## 8. Runner changes (`src/bot/runner.ts`)
 
-- `handleError(RestartFromBeginning)` returns `sleepMs` drawn randomly from `pollDelaySeconds`
-  (was hard-coded 5000).
-- Add WAF/back-off branch: the back-off error from CitaCheck §5.2 maps to a longer sleep
-  (e.g. 5–10 min) and clears cookies, reusing existing bot-detection plumbing.
+- `handleError(RestartFromBeginning)` returns `restartPreservingPage: true` + `sleepMs` drawn
+  randomly from `config.pollDelaySeconds` via the existing `rand()` helper, **falling back to
+  `5000` when unset** (was hard-coded `5000`).
+- Add a dedicated `WafBackoffError` class in `src/bot/errors.ts` and a `handleError` branch for it:
+  long `sleepMs` (e.g. 5–10 min) + `clearCookies: true`. **Do not route WAF through the existing
+  `BotDetectedError` path** — that rotates actors/proxies and sleeps only 10 s, the wrong shape for
+  a WAF cool-down. (The generic `wait.ts` race still maps the WAF text to `BotDetectedError` during
+  in-flow waits; that stays as-is.)
+- StepId reuse (§4) means no other `handleError` / `applyRecovery` change is needed — the
+  `StepId.CitaSelect` recovery branch and the `StepId.Tramite` references keep their current meaning.
 - Happy path (`notifyCitaFound` + `waitForEnter`) is unchanged.
 
 ## 9. Mock server (`mock-server/`)
 
-Update mock pages to the Barcelona DOM so `npm run mock:bot` exercises the new flow
-offline:
+Update the mock server (`src/mock-server/index.ts` **+** `mock-server/pages/*.html`) to the
+Barcelona flow so `npm run mock:bot` exercises it offline. This is **not pages-only** — the routing
+and step machinery are `/icpco/`-specific today and must change too:
 
-- combined office+tramite page (`#sede` with "Cualquier oficina", `#tramiteGrupo[0]` with the toma-de-huellas option, `#btnAceptar`),
-- entrar (`#btnEntrar`),
-- NIE (`#txtIdCitado`, `#txtDesCitado`, `#txtPaisNac`, `#btnEnviar`),
-- confirm (`#btnEnviar` "Solicitar Cita"),
-- a "no citas" page (`#mensajeInfo` text) and a "citas available" page,
+- **Routing** (`src/mock-server/index.ts`): serve the entry at `/icpplustieb/citar` (matching
+  `config.entryPath`); update the POST endpoints (`salirInicio`, etc.) and the `getPageForStep` map
+  from 7 steps (0–6) to the 5-step watcher flow; keep the session / `advanceStep` logic in sync.
+- **`package.json`**: update the `mock:bot` script's `start-server-and-test` wait URL from
+  `http://localhost:3999/icpco/citar` to the new `/icpplustieb/citar` entry.
+- **Pages**: combined office+tramite (`#sede` "Cualquier oficina", `#tramiteGrupo[0]` with the
+  toma-de-huellas option **+ a small script that populates it on `#sede` change** to mirror
+  `cargaTramites()`, `#btnAceptar`), entrar (`#btnEntrar`), NIE (`#txtIdCitado`, `#txtDesCitado`,
+  `#txtPaisNac`, `#btnEnviar`), confirm (`#btnEnviar` "Solicitar Cita"), a "no citas" page
+  (`#mensajeInfo` text) and a "citas available" page **exposing the §5.3 positive anchor**.
 - `MOCK_NO_CITA=1` toggles between the last two.
 
 ## 10. Testing
 
-1. `tsc` clean build.
-2. `npm run mock:bot` with `MOCK_NO_CITA=1` → confirm the no-citas loop + randomized backoff.
-3. Mock without the flag → confirm CitaCheck returns success → `notifyCitaFound` fires → bot stops.
-4. Standalone Telegram send test using the user's real token + chat ID (entered by the user).
-5. Existing `matchOffice` unit test stays green (even though unused in pipeline).
-6. Manual: one careful real-site dry run (user drives NIE entry) to confirm selectors against `/icpplustieb/`.
+Follow TDD for the pure-logic / parser-level changes (write the failing test first; tests run on
+compiled output: `tsc` → `node --test "dist/tests/**/*.test.js"`):
+
+1. **Unit (new, test-first):** CitaCheck classification over fixture HTML — "no citas" page →
+   `RestartFromBeginning`; WAF reject page → `WafBackoffError`; "citas available" page (positive
+   anchor) → success string. Factor the page-state decision into a pure helper (e.g.
+   `classifyCitaResult` in `src/lib/parsers.ts`, where DOM/extraction belongs) so it is testable
+   without a live page; the step's `before` calls it.
+2. **Unit (new, test-first):** `sendTelegram` builds the correct URL/body, never throws on a failed
+   request, and **never logs the token** (assert the error path logs status only).
+3. **Fixtures:** add Barcelona `tests/fixtures/*.html` for the no-citas / WAF / citas-available
+   pages used above; **update `src/tests/integration/flow.test.ts`** (currently asserts Alicante DOM
+   — `#idSede`, `#cita_*`, `#chkTotal`, phone/email) to cover the watcher's actual path, or drop the
+   now-irrelevant cases.
+4. `tsc` clean build; `npm test` green.
+5. `npm run mock:bot` with `MOCK_NO_CITA=1` → confirm the no-citas loop + randomized backoff;
+   without the flag → CitaCheck returns success → `notifyCitaFound` fires → bot stops.
+6. `matchOffice` and date-parser unit tests stay green (kept though unused by the pipeline).
+7. Standalone Telegram send test using the user's real token + chat ID (entered by the user).
+8. Manual: one careful real-site dry run (user drives NIE entry) to confirm selectors against
+   `/icpplustieb/` — **in particular the §5.3 positive cita anchor and the `data-live-search`
+   `#sede` / `#txtPaisNac` behavior.**
 
 ## 11. Risks / open items
 
@@ -143,6 +228,17 @@ offline:
   raise it. Document the 24–74h ban risk in README.
 - **Cookie banner selector** on `/icpplustieb/` may differ from the old `#cookie_action_close_header`;
   resolve during implementation (generic "Acepto" dismissal).
+- **`cargaTramites()` timing**: `#tramiteGrupo[0]` is populated asynchronously when `#sede` changes.
+  Step 0 selects `#sede` = 99 first and waits for the option list before selecting the tramite; if
+  the live widget populates differently, the wait selector may need adjusting (§4).
+- **Positive cita anchor unknown**: the result page was never reached during mapping; the dry run
+  must pin down the §5.3 positive selector, else fall back to "no-citas absent AND a known result
+  element present" rather than bare negation.
+- **Token in logs**: the Telegram token sits in the request URL; ensure error logging /
+  `network-recorder` never capture it (§7).
+- **Poll observability**: each `RestartFromBeginning` poll is **not** recorded by
+  `stats.recordRun` (only success / detection / noSuitableCita are). Acceptable, but poll cycles
+  won't show in stats — add a counter later if visibility is wanted.
 
 ## 12. Non-goals
 
