@@ -1,6 +1,6 @@
 import type { Step } from './types';
 import { StepId } from './types';
-import { move, click, typeChars, press, moveRandom, scroll, select } from './actions';
+import { move, click, typeChars, moveRandom, scroll, select } from './actions';
 import type { Action } from '../bot/pipeline';
 import { rand, sleep } from '../misc';
 
@@ -16,7 +16,10 @@ export const personalIdStep: Step = {
             moveRandom(),
             click('#txtIdCitado'),
             typeChars(nie),
-            rand(0, 100) < 50 ? press('Tab') : click('#txtDesCitado'),
+            // Always reach the name field with a real cursor move + click (no keyboard-Tab
+            // branch) so every field gets a pointer trajectory the WAF can see, not a focus
+            // that jumps in without the mouse.
+            click('#txtDesCitado'),
             typeChars(nombre),
         ];
         if (nacionalidad) {

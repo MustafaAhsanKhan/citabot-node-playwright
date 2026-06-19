@@ -25,7 +25,7 @@ export const select = (selector: string, opts: { label: string } | { value: stri
             // <select>, then selectOption sets the value reliably (fires input/change). selectOption
             // is kept because the native option list can't be driven by the mouse via CDP.
             await cursor.click(selector);
-            await page.keyboard.press('Escape');
+            // await page.keyboard.press('Escape');
             await page.selectOption(selector, opts);
         },
         `select(${selector}, ${'label' in opts ? opts.label : opts.value})`
