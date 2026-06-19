@@ -1,4 +1,5 @@
 import type { AppConfig } from './config';
+import { sendTelegram } from './notifications/telegram';
 
 type NotifyPayload = { message: string; title: string; data?: Record<string, unknown> }
 
@@ -25,6 +26,7 @@ export async function notifyFailure(cfg: AppConfig, consecutiveFailures: number)
     const msg = `Cita bot: ${consecutiveFailures} consecutive failures. Proxy/anti-bot may not be working.`
     console.log('NOTIFICATION:', msg)
     await callHomeAssistant(cfg, { message: msg, title: 'Cita Bot - Failure Alert' })
+    await sendTelegram(cfg, { title: 'Cita Bot - Failure Alert', message: msg })
 }
 
 export async function notifyFailureResolved(cfg: AppConfig): Promise<void> {
@@ -39,6 +41,7 @@ export async function notifyCitaFound(cfg: AppConfig, citaDetails?: string): Pro
         : 'Cita bot: Suitable cita found! Complete the booking manually.'
     console.log('NOTIFICATION:', msg)
     await callHomeAssistant(cfg, { message: msg, title: 'Cita Bot - Cita Found!' })
+    await sendTelegram(cfg, { title: 'Cita Bot - Cita Found!', message: msg })
 }
 
 export async function notifyRecoveryNeeded(cfg: AppConfig): Promise<void> {
