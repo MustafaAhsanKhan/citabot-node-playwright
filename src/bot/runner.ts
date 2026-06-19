@@ -114,8 +114,20 @@ function isConnectionError(message: string): boolean {
 
 async function waitForEnter(message = 'Press Enter to continue...'): Promise<void> {
     const rl = readline.createInterface({ input, output });
-    await rl.question(`${message}\n`);
-    rl.close();
+    // While a prompt is active, readline puts stdin in raw mode and swallows Ctrl+C
+    // (no OS SIGINT reaches the process handler). Forward it as a real signal so the
+    // browser still closes cleanly instead of leaving a "Restore pages?" profile.
+    rl.once('SIGINT', () => {
+        rl.close();
+        process.kill(process.pid, 'SIGINT');
+    });
+    try {
+        await rl.question(`${message}\n`);
+    } catch {
+        // rl.close() during the prompt (Ctrl+C path) rejects the pending question — ignore.
+    } finally {
+        rl.close();
+    }
 }
 
 export class BotRunner {
@@ -128,6 +140,7 @@ export class BotRunner {
     private currentProxy: ProxyConfig | undefined;
     private currentActor: ActorConfig;
     private browser: BrowserContext | null = null;
+    private shutdownHandlersRegistered = false;
     private consecutiveBotDetections = 0;
     private consecutiveTramiteBlocks = 0;
     private consecutiveFailures = 0;
@@ -155,6 +168,7 @@ export class BotRunner {
     async run(): Promise<never> {
         const browserProfile = this.config.browserProfile ?? 'test';
         this.browser = await NewBrowser({ userName: browserProfile, proxy: this.currentProxy });
+        this.registerShutdownHandlers();
         await this.browser.clearCookies();
         await installActionRecorder(this.browser);
         let prevPage: Page | undefined;
@@ -258,6 +272,32 @@ export class BotRunner {
                 if (action.sleepMs) await sleep(action.sleepMs);
             }
         }
+    }
+
+    /**
+     * Close the browser gracefully on Ctrl+C / kill so Chrome writes
+     * `exit_type: "Normal"` to the persistent profile. Without this, the process
+     * dies mid-run and the next launch shows the "Restore pages?" crash bubble.
+     * Reads `this.browser` lazily because recovery reassigns it (see applyRecovery).
+     */
+    private registerShutdownHandlers(): void {
+        if (this.shutdownHandlersRegistered) return;
+        this.shutdownHandlersRegistered = true;
+        let closing = false;
+        const shutdown = async (signal: NodeJS.Signals) => {
+            if (closing) return;
+            closing = true;
+            console.log(`\nReceived ${signal}, closing browser cleanly...`);
+            try {
+                if (this.browser) await this.browser.close();
+            } catch (e) {
+                console.error('Error closing browser on shutdown:', e);
+            }
+            process.exit(0);
+        };
+        // `once`: a second Ctrl+C falls through to the default handler and force-quits.
+        process.once('SIGINT', shutdown);
+        process.once('SIGTERM', shutdown);
     }
 
     private handleError(e: Error, stepRef: { current: StepId }): RecoveryAction {
