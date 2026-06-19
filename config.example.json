@@ -1,5 +1,6 @@
 {
   "browserProfile": "test",
+  "extensions": ["/absolute/path/to/chromixer/extension"],
   "rotateProxyOnTramiteBlock": true,
   "location": "Barcelona",
   "entryPath": "/icpplustieb/citar?p=8&locale=es",

@@ -59,6 +59,8 @@ export interface AppConfig {
     /** Single proxy (legacy) or array for rotation */
     proxy?: ProxyConfig;
     proxies?: ProxyConfig[];
+    /** Absolute paths to unpacked extension dirs to load at launch (e.g. Chromixer). */
+    extensions?: string[];
     actors?: ActorConfig[];
     keepBrowserOpenOnFailure?: boolean;
     notifications?: {
@@ -99,6 +101,9 @@ const REFERENCE_ACTOR: ActorConfig = {
     typing: { baseDelay: 60, delayVariance: 30, mistakeChance: 0 },
     typingPressDelay: [60, 100],
     cursor: {
+        // debug: true injects a visible <p-mouse-pointer> overlay so you can WATCH the cursor
+        // glide + click on each field. It's a detectable DOM artifact — set back to false (and
+        // don't commit it on) before real anti-detection runs.
         overshootSpread: 5, overshootRadius: 5, debug: false,
         waitBeforeMove: [50, 200], waitBeforeClick: [100, 300], waitBetweenClick: [50, 150],
         scrollDelay: [100, 200], maxScrollStep: 2000, moveRandomRange: [100, 200],

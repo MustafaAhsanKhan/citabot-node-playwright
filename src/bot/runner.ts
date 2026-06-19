@@ -167,7 +167,7 @@ export class BotRunner {
 
     async run(): Promise<never> {
         const browserProfile = this.config.browserProfile ?? 'test';
-        this.browser = await NewBrowser({ userName: browserProfile, proxy: this.currentProxy });
+        this.browser = await NewBrowser({ userName: browserProfile, proxy: this.currentProxy, extensions: this.config.extensions });
         this.registerShutdownHandlers();
         await this.browser.clearCookies();
         await installActionRecorder(this.browser);
@@ -415,7 +415,7 @@ export class BotRunner {
             console.log('All actors tried, testing new actor:', candidate.id);
             await page.close();
             if (this.browser) await this.browser.close();
-            this.browser = await NewBrowser({ userName: browserProfile, proxy: this.currentProxy });
+            this.browser = await NewBrowser({ userName: browserProfile, proxy: this.currentProxy, extensions: this.config.extensions });
             const testPage = await this.browser.newPage();
             await testPage.setViewportSize(randomViewport());
             await testPage.route('**/*', (r) => {
@@ -445,7 +445,7 @@ export class BotRunner {
         }
         if (action.closeBrowser && this.browser) {
             await this.browser.close();
-            this.browser = await NewBrowser({ userName: browserProfile, proxy: this.currentProxy });
+            this.browser = await NewBrowser({ userName: browserProfile, proxy: this.currentProxy, extensions: this.config.extensions });
         }
     }
 
