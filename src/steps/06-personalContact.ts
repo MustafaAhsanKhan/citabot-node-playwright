@@ -6,7 +6,8 @@ export const personalContactStep: Step = {
     id: StepId.PersonalContact,
     waitFor: '#txtTelefonoCitado',
     actions: (ctx) => {
-        const { telefono, email } = ctx.config.personalData;
+        const telefono = ctx.config.personalData.telefono ?? '';
+        const email = ctx.config.personalData.email ?? '';
         return [
             moveRandom(),
             click('#txtTelefonoCitado'),

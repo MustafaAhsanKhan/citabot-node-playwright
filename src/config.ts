@@ -4,8 +4,12 @@ import * as path from 'path';
 export interface PersonalDataConfig {
     nie: string;
     nombre: string;
-    telefono: string;
-    email: string;
+    /** Optional: exact <option> label on #txtPaisNac (e.g. "ECUADOR"). Used by the Barcelona watcher. */
+    nacionalidad?: string;
+    /** Optional — unused by the watcher (kept for possible future auto-book). */
+    telefono?: string;
+    /** Optional — unused by the watcher (kept for possible future auto-book). */
+    email?: string;
 }
 
 export interface ProxyConfig {
@@ -47,6 +51,10 @@ export interface AppConfig {
     tramiteLabel: string;
     offices: string[];
     minCitaDate: string;
+    /** Barcelona entry path; falls back to '/icpco/citar' when unset. baseUrl still overrides the host. */
+    entryPath?: string;
+    /** [minSeconds, maxSeconds] randomized backoff between poll cycles. Runner falls back to 5000ms when unset. */
+    pollDelaySeconds?: [number, number];
     personalData: PersonalDataConfig;
     /** Single proxy (legacy) or array for rotation */
     proxy?: ProxyConfig;
@@ -55,9 +63,10 @@ export interface AppConfig {
     keepBrowserOpenOnFailure?: boolean;
     notifications?: {
         failureCountThreshold?: number;
-        citaFoundChannels?: ('email' | 'homeassistant')[];
+        citaFoundChannels?: ('email' | 'homeassistant' | 'telegram')[];
         criticalAfterSeconds?: number;
         homeassistant?: { url: string; token: string };
+        telegram?: { botToken: string; chatId: string };
     };
 }
 
