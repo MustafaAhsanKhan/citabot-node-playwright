@@ -15,7 +15,7 @@
     "proxy": "node proxy.js",
     "mock": "tsc && node dist/mock-server/index.js",
     "mock:server": "node dist/mock-server/index.js",
-    "mock:bot": "tsc && start-server-and-test mock:server http://localhost:3999/icpco/citar start",
+    "mock:bot": "tsc && start-server-and-test mock:server http://localhost:3999/icpplustieb/citar start",
     "record:manual": "tsc && node dist/record-manual.js"
   },
   "keywords": [],
