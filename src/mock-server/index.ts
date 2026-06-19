@@ -1,12 +1,12 @@
 /**
- * Mock server for manual integration testing.
- * Serves simple HTML forms (no scripts) so the bot can run against localhost.
+ * Mock server for manual integration testing of the Barcelona toma-de-huellas watcher.
+ * Serves the 5-step flow so `npm run mock:bot` exercises it offline.
  *
  * Usage:
- *   npm run mock
- *   Then set baseUrl: "http://localhost:3999" in config.json and run the bot.
+ *   npm run mock      (then set baseUrl: "http://localhost:3999" in config.json and run the bot)
+ *   npm run mock:bot  (starts server + bot together)
  *
- * Env MOCK_PORT (default 3999), MOCK_NO_CITA=1 to serve no-cita at step 6.
+ * Env: MOCK_PORT (default 3999), MOCK_NO_CITA=1 serves the "no citas" page at the result step.
  */
 import * as http from 'http'
 import * as fs from 'fs'
@@ -19,6 +19,7 @@ const MOCK_NO_CITA = process.env.MOCK_NO_CITA === '1'
 const PAGES_DIR = path.join(process.cwd(), 'mock-server', 'pages')
 
 const SESSION_COOKIE = 'mock-session'
+const LAST_STEP = 4
 const sessions = new Map<string, number>()
 
 function getStep(sessionId: string): number {
@@ -26,8 +27,7 @@ function getStep(sessionId: string): number {
 }
 
 function advanceStep(sessionId: string): number {
-    const step = getStep(sessionId)
-    const next = Math.min(step + 1, 6)
+    const next = Math.min(getStep(sessionId) + 1, LAST_STEP)
     sessions.set(sessionId, next)
     return next
 }
@@ -39,8 +39,7 @@ function parseCookie(header: string | undefined): string | null {
 }
 
 function getOrCreateSession(req: http.IncomingMessage, res: http.ServerResponse): string {
-    const cookie = req.headers.cookie
-    let id = parseCookie(cookie)
+    let id = parseCookie(req.headers.cookie)
     if (!id) {
         id = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
         res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${id}; Path=/`)
@@ -53,21 +52,15 @@ function serveHtml(res: http.ServerResponse, html: string) {
     res.end(html)
 }
 
-function getPageForStep(step: number): string {
+function pageForStep(step: number): string {
     const files: Record<number, string> = {
-        0: 'step0_tramite.html',
-        1: 'step1_entrar.html',
-        2: 'step2_nie.html',
-        3: 'step3_nie2.html',
-        4: 'step4_office.html',
-        5: 'step5_personal.html',
-        6: MOCK_NO_CITA ? 'step6_no_cita.html' : 'step6_cita.html',
+        0: 'bcn_combined.html',
+        1: 'bcn_entrar.html',
+        2: 'bcn_nie.html',
+        3: 'bcn_confirm.html',
+        4: MOCK_NO_CITA ? 'bcn_no_citas.html' : 'bcn_citas_available.html',
     }
     return fs.readFileSync(path.join(PAGES_DIR, files[step]), 'utf-8')
-}
-
-function getRegionSelectPage(): string {
-    return fs.readFileSync(path.join(PAGES_DIR, 'step_region.html'), 'utf-8')
 }
 
 const server = http.createServer((req, res) => {
@@ -76,27 +69,22 @@ const server = http.createServer((req, res) => {
     const pathname = parsed.pathname || '/'
     const method = req.method || 'GET'
 
-    if (method === 'GET' && pathname === '/icpco/citar' && !parsed.query?.p) {
-        serveHtml(res, getRegionSelectPage())
-        return
-    }
-    if (method === 'GET' && (pathname === '/icpco/citar' || pathname.startsWith('/icpco/citar'))) {
-        const step = getStep(sessionId)
-        const html = getPageForStep(step)
-        serveHtml(res, html)
+    // Entry GET (the bot's page.goto on every (re)start) resets the flow to step 0.
+    if (method === 'GET' && pathname === '/icpplustieb/citar') {
+        sessions.set(sessionId, 0)
+        serveHtml(res, pageForStep(0))
         return
     }
 
-    if (method === 'POST' && (
-        pathname === '/icpco/advance' ||
-        pathname === '/icpco/salirInicio' ||
-        pathname === '/icpco/acVerificarCita' ||
-        pathname === '/icpco/acGrabarCita'
-    )) {
+    // Forward navigation after a form POST: advance one step, redirect to the (non-resetting) page GET.
+    if (method === 'POST' && pathname === '/icpplustieb/advance') {
         advanceStep(sessionId)
-        const p = parsed.query?.p || '3'
-        res.writeHead(302, { Location: `/icpco/citar?p=${p}&locale=es` })
+        res.writeHead(302, { Location: '/icpplustieb/page' })
         res.end()
+        return
+    }
+    if (method === 'GET' && pathname === '/icpplustieb/page') {
+        serveHtml(res, pageForStep(getStep(sessionId)))
         return
     }
 
@@ -105,8 +93,9 @@ const server = http.createServer((req, res) => {
 })
 
 server.listen(PORT, () => {
-    console.log(`Mock server running at http://localhost:${PORT}`)
-    console.log(`  GET  /icpco/citar?p=3&locale=es - serve step page`)
-    console.log(`  POST /icpco/advance etc - advance step and redirect`)
-    if (MOCK_NO_CITA) console.log(`  (MOCK_NO_CITA=1: serving no-cita at step 6)`)
+    console.log(`Mock server (Barcelona watcher) running at http://localhost:${PORT}`)
+    console.log(`  GET  /icpplustieb/citar   - reset + serve combined office/tramite page (step 0)`)
+    console.log(`  POST /icpplustieb/advance - advance step, redirect to /icpplustieb/page`)
+    console.log(`  GET  /icpplustieb/page    - serve current step page`)
+    if (MOCK_NO_CITA) console.log(`  (MOCK_NO_CITA=1: serving no-citas at the result step)`)
 })
