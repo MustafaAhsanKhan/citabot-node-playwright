@@ -26,3 +26,10 @@ export class NoSuitableCitaError extends Error {
         this.name = 'NoSuitableCitaError';
     }
 }
+
+export class WafBackoffError extends Error {
+    constructor(message = 'WAF rejected request') {
+        super(message);
+        this.name = 'WafBackoffError';
+    }
+}
