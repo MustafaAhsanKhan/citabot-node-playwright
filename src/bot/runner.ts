@@ -13,7 +13,8 @@ import {
 import { recordRun, findWorstActor } from '../stats';
 import { notifyFailure, notifyFailureResolved, notifyCitaFound, notifyCritical, notifyRecoveryNeeded } from '../notifications';
 import { sleep } from '../misc';
-import {RetryError, BotDetectedError, NoSuitableCitaError, RestartFromBeginning} from './errors';
+import {RetryError, BotDetectedError, NoSuitableCitaError, RestartFromBeginning, WafBackoffError} from './errors';
+import { pollSleepMs, wafBackoffMs } from './backoff';
 import { RunResult, StepId } from '../steps/types';
 import { NetworkRecorder } from './network-recorder';
 import {
@@ -261,7 +262,13 @@ export class BotRunner {
 
     private handleError(e: Error, stepRef: { current: StepId }): RecoveryAction {
         if (e instanceof RestartFromBeginning) {
-            return {restartPreservingPage: true, sleepMs: 5000};
+            return {restartPreservingPage: true, sleepMs: pollSleepMs(this.config)};
+        }
+
+        if (e instanceof WafBackoffError) {
+            // Long cool-down + clear cookies. NOT the BotDetectedError path (that rotates
+            // actors/proxies and sleeps only 10s — the wrong shape for a WAF block).
+            return {clearCookies: true, sleepMs: wafBackoffMs()};
         }
 
         if (e instanceof RetryError) {
