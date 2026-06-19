@@ -67,7 +67,10 @@ Set `baseUrl: "http://localhost:3999"` in `config.json`, then either:
 - **Single command:** `npm run mock:bot` – starts mock server and bot together
 - **Separate terminals:** `npm run mock` in one, `npm start` in another
 
-Env vars: `MOCK_PORT` (default 3999), `MOCK_NO_CITA=1` to serve the "no citas" page at step 6.
+Env vars: `MOCK_PORT` (default 3999), `MOCK_NO_CITA=1` to serve the "no citas" page at the result
+step (the watcher then loops: no-citas → randomized `pollDelaySeconds` backoff → restart from step 0).
+Without the flag, the result step serves a "citas available" page, the watcher classifies it as
+available, fires `notifyCitaFound`, and stops with the browser open for manual booking.
 
 ---
 
