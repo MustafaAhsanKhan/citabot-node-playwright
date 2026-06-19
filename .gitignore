@@ -69,3 +69,4 @@ stats/
 *.temp
 .cache/
 .parcel-cache/
+/.claude/skills/gitnexus/
