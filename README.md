@@ -43,12 +43,15 @@ All inputs come from `config.json`. See `config.example.json` for structure.
 | `tramiteLabel` | Full tramite/procedure label (exact text as shown on the site) |
 | `offices` | Array of office names (priority order); first match is selected |
 | `minCitaDate` | Minimum cita date `YYYY-MM-DD` |
+| `entryPath` | Cita site entry path (Barcelona watcher: `/icpplustieb/citar?p=8&locale=es`). Falls back to `/icpco/citar` when unset. |
+| `pollDelaySeconds` | `[min, max]` seconds; randomized backoff between poll cycles (default `5` s when unset). Raise to lower shadow-ban risk. |
 | `personalData` | NIE, nombre, telefono, email |
+| `personalData.nacionalidad` | Exact `<option>` label on the nationality select (e.g. `ECUADOR`). |
 | `proxy` | Single proxy (server, username, password) |
 | `proxies` | Array of proxies for rotation (on 429 or 5 bot detections) |
 | `actors` | Human-behavior actor profiles (see [Actors Configuration](#actors-configuration)) |
 | `keepBrowserOpenOnFailure` | Keep browser open when error at cita/confirm step (default: true) |
-| `notifications` | `failureCountThreshold`, `criticalAfterSeconds`, `homeassistant` url+token |
+| `notifications` | `failureCountThreshold`, `criticalAfterSeconds`, `homeassistant` url+token, `telegram` botToken+chatId |
 
 ---
 
@@ -189,6 +192,20 @@ Set `notifications.homeassistant.url` and `notifications.homeassistant.token` (l
 - Failure alert after N consecutive failures (`failureCountThreshold`, default 5)
 - Cita found notification
 - Critical notification if no cita response within N seconds (`criticalAfterSeconds`, default 60)
+
+---
+
+## Telegram Notifications
+
+Set `notifications.telegram.botToken` and `notifications.telegram.chatId` to receive a push when a
+cita is found (and on the failure alert). Create a bot via [@BotFather](https://t.me/BotFather) for
+the token; get your chat ID from [@userinfobot](https://t.me/userinfobot). The token is embedded in
+the request URL and is never written to logs or network dumps. Telegram fires whenever the block is
+present, independent of `citaFoundChannels`.
+
+> **Barcelona watcher behaviour:** this fork is a *watcher* — it walks the toma-de-huellas flow,
+> stops the moment any cita is available, and pushes a Telegram alert. It does **not** auto-book; you
+> complete the booking manually in the open browser. See the shadow-ban warning under Known Limitations.
 
 ---
 

@@ -1,16 +1,19 @@
 {
   "browserProfile": "test",
   "rotateProxyOnTramiteBlock": true,
-  "location": "3",
-  "tramiteLabel": "POLICÍA TARJETA CONFLICTO UCRANIA–ПОЛІЦІЯ -КАРТКА ДЛЯ ПЕРЕМІЩЕНИХ ОСІБ ВНАСЛІДОК КОНФЛІКТУ В УКРАЇНІ",
+  "location": "Barcelona",
+  "entryPath": "/icpplustieb/citar?p=8&locale=es",
+  "tramiteLabel": "POLICÍA-TOMA DE HUELLAS (EXPEDICIÓN DE TARJETA) INICIAL, RENOVACIÓN, DUPLICADO Y LEY 14/2013",
   "offices": [
-    "CNP Alcoy, Placeta Les Xiques",
-    "Another Office Name"
+    "CNP COMISARIA EXAMPLE 1",
+    "CNP COMISARIA EXAMPLE 2"
   ],
   "minCitaDate": "2026-02-15",
+  "pollDelaySeconds": [45, 90],
   "personalData": {
     "nie": "your_nie",
     "nombre": "your name",
+    "nacionalidad": "ECUADOR",
     "telefono": "6XXXXXXXX",
     "email": "your@email.com"
   },
@@ -18,6 +21,11 @@
   "notifications": {
     "failureCountThreshold": 5,
     "criticalAfterSeconds": 60,
+    "citaFoundChannels": ["telegram"],
+    "telegram": {
+      "botToken": "<your-bot-token>",
+      "chatId": "<your-chat-id>"
+    },
     "homeassistant": {
       "url": "http://homeassistant.local:8123",
       "token": "your_long_lived_token"
@@ -28,11 +36,6 @@
       "server": "proxy1.example.com:port",
       "username": "user1",
       "password": "pass1"
-    },
-    {
-      "server": "proxy2.example.com:port",
-      "username": "user2",
-      "password": "pass2"
     }
   ]
 }
