@@ -51,6 +51,11 @@ export function parseCitaCandidatesFromText(
 export const CITA_POSITIVE_TOKEN = 'name="rdbCita"'
 export const CITA_POSITIVE_SELECTOR = `input[${CITA_POSITIVE_TOKEN}]`
 
+/** WAF "request rejected" page marker (spec §5) — kept as a named constant for symmetry with the other signals. */
+export const WAF_REJECTION_TOKEN = 'The requested URL was rejected'
+/** No-citas-available message marker (spec §5). */
+export const NO_CITAS_TOKEN = 'En este momento no hay citas disponibles'
+
 export type CitaResult = 'no-citas' | 'waf' | 'available' | 'unknown'
 
 /**
@@ -59,8 +64,8 @@ export type CitaResult = 'no-citas' | 'waf' | 'available' | 'unknown'
  * result-page element present — never bare absence-of-negative (spec §5).
  */
 export function classifyCitaResult(html: string): CitaResult {
-    if (html.includes('The requested URL was rejected')) return 'waf'
-    if (html.includes('En este momento no hay citas disponibles')) return 'no-citas'
+    if (html.includes(WAF_REJECTION_TOKEN)) return 'waf'
+    if (html.includes(NO_CITAS_TOKEN)) return 'no-citas'
     if (html.includes(CITA_POSITIVE_TOKEN)) return 'available'
     return 'unknown'
 }

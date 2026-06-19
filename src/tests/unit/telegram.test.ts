@@ -24,14 +24,17 @@ describe('buildTelegramBody', () => {
 describe('sendTelegram', () => {
     it('POSTs the correct url and body when telegram is configured', async () => {
         let calledUrl = ''
+        let calledMethod = ''
         let calledBody = ''
-        const fetchFn = (async (url: unknown, init: { body?: unknown }) => {
+        const fetchFn = (async (url: unknown, init: { method?: unknown; body?: unknown }) => {
             calledUrl = String(url)
+            calledMethod = String(init.method)
             calledBody = String(init.body)
             return { ok: true, status: 200 } as unknown as Response
         }) as unknown as typeof fetch
         await sendTelegram(cfg, { title: 'Cita', message: 'found' }, { fetchFn })
         assert.strictEqual(calledUrl, 'https://api.telegram.org/bot123456:SECRET-TOKEN/sendMessage')
+        assert.strictEqual(calledMethod, 'POST')
         assert.deepStrictEqual(JSON.parse(calledBody), { chat_id: '999', text: 'Cita\nfound' })
     })
 

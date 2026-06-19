@@ -52,7 +52,8 @@ function serveHtml(res: http.ServerResponse, html: string) {
     res.end(html)
 }
 
-function pageForStep(step: number): string {
+/** Read the page file for a step, or null on an unknown step / missing file (so the handler can 500 instead of crashing). */
+function pageForStep(step: number): string | null {
     const files: Record<number, string> = {
         0: 'bcn_combined.html',
         1: 'bcn_entrar.html',
@@ -60,7 +61,23 @@ function pageForStep(step: number): string {
         3: 'bcn_confirm.html',
         4: MOCK_NO_CITA ? 'bcn_no_citas.html' : 'bcn_citas_available.html',
     }
-    return fs.readFileSync(path.join(PAGES_DIR, files[step]), 'utf-8')
+    const file = files[step]
+    if (!file) return null
+    try {
+        return fs.readFileSync(path.join(PAGES_DIR, file), 'utf-8')
+    } catch {
+        return null
+    }
+}
+
+function serveStep(res: http.ServerResponse, step: number) {
+    const html = pageForStep(step)
+    if (html === null) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' })
+        res.end(`Mock server: no page available for step ${step}`)
+        return
+    }
+    serveHtml(res, html)
 }
 
 const server = http.createServer((req, res) => {
@@ -72,7 +89,7 @@ const server = http.createServer((req, res) => {
     // Entry GET (the bot's page.goto on every (re)start) resets the flow to step 0.
     if (method === 'GET' && pathname === '/icpplustieb/citar') {
         sessions.set(sessionId, 0)
-        serveHtml(res, pageForStep(0))
+        serveStep(res, 0)
         return
     }
 
@@ -84,7 +101,7 @@ const server = http.createServer((req, res) => {
         return
     }
     if (method === 'GET' && pathname === '/icpplustieb/page') {
-        serveHtml(res, pageForStep(getStep(sessionId)))
+        serveStep(res, getStep(sessionId))
         return
     }
 

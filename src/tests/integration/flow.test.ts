@@ -17,11 +17,12 @@ async function loadFixture(name: string): Promise<string> {
 const TRAMITE_LABEL =
     'POLICÍA-TOMA DE HUELLAS (EXPEDICIÓN DE TARJETA) INICIAL, RENOVACIÓN, DUPLICADO Y LEY 14/2013'
 
-describe('Combined office + tramite page', () => {
-    let browser: Awaited<ReturnType<typeof chromium.launch>>
-    before(async () => { browser = await chromium.launch({ headless: true }) })
-    after(async () => { await browser?.close() })
+// One browser shared across every suite in this file — each test still gets its own page.
+let browser: Awaited<ReturnType<typeof chromium.launch>>
+before(async () => { browser = await chromium.launch({ headless: true }) })
+after(async () => { await browser?.close() })
 
+describe('Combined office + tramite page', () => {
     it('selecting Cualquier oficina populates tramiteGrupo[0] and the tramite is selectable', async () => {
         const page = await browser.newPage()
         await page.setContent(await loadFixture('bcn_combined'), { waitUntil: 'domcontentloaded' })
@@ -43,10 +44,6 @@ describe('Combined office + tramite page', () => {
 })
 
 describe('Cita result classification (browser-serialized HTML)', () => {
-    let browser: Awaited<ReturnType<typeof chromium.launch>>
-    before(async () => { browser = await chromium.launch({ headless: true }) })
-    after(async () => { await browser?.close() })
-
     const cases: [string, CitaResult][] = [
         ['bcn_no_citas', 'no-citas'],
         ['bcn_waf', 'waf'],
