@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Oficina y trámite</title></head>
+<body>
+<div id="cookieBanner">
+    <button type="button" id="cookieAccept" onclick="document.getElementById('cookieBanner').style.display='none'">Acepto</button>
+</div>
+<form name="datosCita" action="/icpplustieb/advance" method="post">
+    <select id="sede" name="sede" onchange="cargaTramites()">
+        <option value="">Seleccione oficina...</option>
+        <option value="99">Cualquier oficina</option>
+    </select>
+    <select id="tramiteGrupo[0]" name="tramiteGrupo[0]">
+        <option value="">Seleccione...</option>
+    </select>
+    <input id="btnAceptar" type="button" value="Aceptar" onclick="document.forms['datosCita'].submit()">
+</form>
+<script>
+function cargaTramites() {
+    var sel = document.getElementById('sede');
+    var tg = document.getElementById('tramiteGrupo[0]');
+    tg.innerHTML = '<option value="">Seleccione...</option>';
+    if (sel.value) {
+        setTimeout(function () {
+            var opt = document.createElement('option');
+            opt.value = '1';
+            opt.text = 'POLICÍA-TOMA DE HUELLAS (EXPEDICIÓN DE TARJETA) INICIAL, RENOVACIÓN, DUPLICADO Y LEY 14/2013';
+            tg.appendChild(opt);
+        }, 150);
+    }
+}
+</script>
+</body>
+</html>
