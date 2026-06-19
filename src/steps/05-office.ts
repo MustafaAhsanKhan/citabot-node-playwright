@@ -54,8 +54,8 @@ export const officeStep: Step = {
     actions: (ctx) => {
         const matchedValue = ctx.data[StepDataKey.MatchedOffice] as string;
         return [
+            // select() moves the cursor to the dropdown and clicks it before setting the value.
             moveRandom(),
-            move('#idSede'),
             select('#idSede', { value: matchedValue }),
             scroll('#btnSiguiente'),
             move('#btnSiguiente'),

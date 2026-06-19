@@ -18,7 +18,16 @@ export const scroll = (selector: string): Action =>
     withLabel(({ cursor }) => cursor.scroll(selector), `scroll(${selector})`);
 export const select = (selector: string, opts: { label: string } | { value: string }): Action =>
     withLabel(
-        ({ page }) => page.selectOption(selector, opts),
+        async ({ page, cursor }) => {
+            // Open the dropdown with a real (isTrusted) human click so the WAF sees a pointer
+            // trajectory land on the control plus mousedown/focus/click — instead of a value that
+            // changes out of nowhere. Escape dismisses the native popup while keeping focus on the
+            // <select>, then selectOption sets the value reliably (fires input/change). selectOption
+            // is kept because the native option list can't be driven by the mouse via CDP.
+            await cursor.click(selector);
+            await page.keyboard.press('Escape');
+            await page.selectOption(selector, opts);
+        },
         `select(${selector}, ${'label' in opts ? opts.label : opts.value})`
     );
 export const typeChars = (text: string): Action =>

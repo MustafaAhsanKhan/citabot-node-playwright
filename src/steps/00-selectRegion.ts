@@ -1,7 +1,7 @@
 import { Step, StepDataKey } from './types';
 import type { Action } from '../bot/pipeline';
 import { StepId } from './types';
-import { move, click, label, select } from './actions';
+import { move, click, label, select, moveRandom } from './actions';
 import { RetryError } from '../bot/errors';
 import { SELECTOR_TIMEOUT_MS } from './wait';
 import { rand, sleep } from '../misc';
@@ -32,6 +32,10 @@ export const selectRegionStep: Step = {
     },
     actions: (ctx) => {
         const pipeline: Action[] = [
+            // select() now moves the cursor to each dropdown and clicks it (real isTrusted events)
+            // before setting the value, so no explicit move() is needed here. A leading random
+            // drift keeps the pointer alive before the first interaction.
+            moveRandom(),
             select('#sede', { value: ANY_OFFICE_VALUE }),
             label(
                 // An <option> in a closed <select> has an empty bounding box, so it is never

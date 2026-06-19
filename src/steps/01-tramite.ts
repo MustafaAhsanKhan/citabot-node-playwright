@@ -13,7 +13,7 @@ export const tramiteStep: Step = {
     actions: (ctx) => {
         const sel = '#tramiteGrupo\\[1\\]';
         return [
-            move(sel),
+            // select() moves the cursor to the dropdown and clicks it before setting the value.
             select(sel, { label: ctx.config.tramiteLabel }),
             scroll('#btnAceptar'),
             move('#btnAceptar'),
