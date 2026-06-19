@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Datos personales</title></head>
+<body>
+<form name="datosCita" action="/icpplustieb/advance" method="post">
+    <label for="txtIdCitado">NIE</label>
+    <input id="txtIdCitado" name="txtIdCitado" maxlength="9">
+    <label for="txtDesCitado">Nombre</label>
+    <input id="txtDesCitado" name="txtDesCitado" onchange="comprobarDatos()">
+    <label for="txtPaisNac">Nacionalidad</label>
+    <select id="txtPaisNac" name="txtPaisNac" required>
+        <option value="">Seleccione país...</option>
+        <option value="222">ECUADOR</option>
+    </select>
+    <input id="btnEnviar" type="button" value="Enviar" onclick="document.forms['datosCita'].submit()">
+</form>
+<script>function comprobarDatos() {}</script>
+</body>
+</html>
