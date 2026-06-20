@@ -83,10 +83,15 @@ A labeled custom action (`label(...)`) inserted where the office select was:
 - **Normal case** (`current === ANY_OFFICE_VALUE`): do nothing. The next control
   the bot touches is the trámite dropdown — exactly the manual flow.
 - **Abnormal case** (`current !== ANY_OFFICE_VALUE`): `console.warn` the
-  unexpected default, then do a real human interaction —
-  `await cursor.click('#sede')` then `await page.selectOption('#sede', { value: ANY_OFFICE_VALUE })`.
-  This fires `cargaTramites()`; `waitForTramiteOptions` (next action) then waits
-  for the trámite list to repopulate, as it did originally.
+  unexpected default, then perform the office selection by **reusing the existing
+  `select()` helper** rather than re-rolling its body —
+  `await select('#sede', { value: ANY_OFFICE_VALUE })(ctx)`. This keeps the
+  step's one human-click-then-`selectOption` choreography (and any future stealth
+  changes to `select()` in `src/steps/actions.ts`) in a single place. It fires
+  `cargaTramites()`; `waitForTramiteOptions` (next action) then waits for the
+  trámite list to repopulate, as it did originally.
+  > Do **not** inline `cursor.click('#sede')` + `page.selectOption(...)` — that
+  > duplicates `select()` (`src/steps/actions.ts:19`) and risks drift.
 
 `#sede` is guaranteed present: the step's `before` already
 `waitForSelector('#sede')` before any action runs, so `inputValue()` cannot race
@@ -104,7 +109,9 @@ The mock was built from the wrong assumption (`#sede` defaults to empty,
 `#tramiteGrupo[0]` empty until `cargaTramites()` fires). Correct it to model the
 real page so `npm run mock:bot` exercises the real happy path:
 
-- `#sede`: `<option value="99" selected>Cualquier oficina</option>` — default is `99`.
+- `#sede`: keep the `<option value="">Seleccione oficina...</option>` placeholder
+  (the real page lists many offices) and mark
+  `<option value="99" selected>Cualquier oficina</option>` — default is `99`.
 - `#tramiteGrupo[0]`: pre-render the toma-de-huellas `<option>` in the HTML so it
   exists on load without an office change.
 - Keep `cargaTramites()` and the `onchange` wired so the abnormal/corrective
@@ -115,19 +122,40 @@ With this, the mock happy path: read `#sede=99` → skip office → select
 pre-populated trámite → click Aceptar → advance to entrar. The office dropdown is
 never touched.
 
+### 4.5 Mock — corrective-branch coverage (`src/mock-server/index.ts`)
+
+Approach B's only advantage over A is the abnormal-default branch (§4.2); it must
+be exercised, not shipped as dead code. Add a mock toggle —
+**`MOCK_OFFICE_DEFAULT_EMPTY=1`** — that serves a `bcn_combined` variant whose
+`#sede` defaults to the **empty** placeholder (no `selected` on `99`) and whose
+`#tramiteGrupo[0]` is empty until `cargaTramites()` fires (i.e. the pre-`4.4`
+behaviour). With the toggle set, `npm run mock:bot` drives the corrective path:
+`ensureAnyOffice` reads `current !== '99'` → `console.warn` → `select('#sede', {value:'99'})`
+→ `cargaTramites()` repopulates → `waitForTramiteOptions` resolves → trámite
+selected → Aceptar. This is a routing/serving change in `src/mock-server/index.ts`
+(not pages-only); follow the repo's mock-server conventions.
+
 ## 5. Out of scope
 
 - Other steps (entrar, NIE, confirm, citaSelect) — unchanged.
-- Runner, config schema, notifications — unchanged.
-- No new config flags.
+- Runner, app `config.json` schema, notifications — unchanged.
+- No new app config flags. (The `MOCK_OFFICE_DEFAULT_EMPTY` env toggle in §4.5 is a
+  mock-server test harness switch, like the existing `MOCK_NO_CITA` — not app config.)
 
 ## 6. Testing
 
-- `tsc` clean build.
-- `npm run mock:bot` → step 0 logs show **no** `select(#sede…)` / office
-  interaction; trámite is selected; Aceptar clicked; flow advances to entrar.
+- `tsc` clean build; `npx tsc --noEmit` / `npm run lint` clean.
+- **Normal path** — `npm run mock:bot` → step 0 logs show `ensureAnyOffice`
+  **present** and `select(#sede…)` **absent** (the invisible read ran, the office
+  was never selected); trámite is selected; Aceptar clicked; flow advances to
+  entrar.
+- **Corrective path** — `MOCK_OFFICE_DEFAULT_EMPTY=1 npm run mock:bot` (§4.5) →
+  step 0 logs show the `console.warn` + a `select(#sede…)` to "Cualquier oficina",
+  `cargaTramites()` repopulates, trámite selected, Aceptar clicked, advances. This
+  is the test that proves Approach B's branch works.
 - `npm test` stays green (existing watcher integration/flow test unaffected by
-  this change).
+  this change). Per repo TDD discipline, write the corrective-path mock flow so it
+  fails first (before `ensureAnyOffice` exists) — confirming it tests the branch.
 
 ## 7. Doc hygiene
 
