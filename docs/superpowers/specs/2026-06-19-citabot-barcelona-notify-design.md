@@ -50,7 +50,7 @@ slot is chosen during manual booking. Hence the watcher never reaches it.
 
 | # | File / StepId | Page | Actions |
 |---|---------------|------|---------|
-| 0 | `00-selectRegion.ts` / `StepId.RegionSelect` | entry | navigate to `config.entryPath`; dismiss cookie banner if present; `select('#sede', { value: '99' })` ("Cualquier oficina") **to fire `cargaTramites()`**; **wait for `#tramiteGrupo\[0\]` options to populate** (`waitForSelector('#tramiteGrupo\\[0\\] option', …)`); `select('#tramiteGrupo\\[0\\]', { label: config.tramiteLabel })`; `move`+`click` `#btnAceptar` |
+| 0 | `00-selectRegion.ts` / `StepId.RegionSelect` | entry | navigate to `config.entryPath`; dismiss cookie banner if present; **invisible-guard the office** — read `#sede` via `inputValue()` (no interaction) and only `select('#sede', { value: '99' })` ("Cualquier oficina") if it is *not* already `99`; **wait for the `#tramiteGrupo\[0\]` toma-de-huellas option to be attached**; `select('#tramiteGrupo\\[0\\]', { label: config.tramiteLabel })`; `move`+`click` `#btnAceptar`. See `2026-06-20-step0-office-select-design.md`. |
 | 1 | `02-entrar.ts` / `StepId.Entrar` | acInfo | wait `#btnEntrar`; `move`+`click` (unchanged) |
 | 2 | `03-personalId.ts` / `StepId.PersonalId` | NIE | `click`+`type` `#txtIdCitado` = nie; `type` `#txtDesCitado` = nombre; `select('#txtPaisNac', { label: config.personalData.nacionalidad })`; `move`+`click` `#btnEnviar` |
 | 3 | `04-personalIdConfirm.ts` / `StepId.PersonalIdConfirm` | confirm | wait `#btnEnviar`; `move`+`click` (unchanged selector) |
@@ -228,9 +228,10 @@ compiled output: `tsc` → `node --test "dist/tests/**/*.test.js"`):
   raise it. Document the 24–74h ban risk in README.
 - **Cookie banner selector** on `/icpplustieb/` may differ from the old `#cookie_action_close_header`;
   resolve during implementation (generic "Acepto" dismissal).
-- **`cargaTramites()` timing**: `#tramiteGrupo[0]` is populated asynchronously when `#sede` changes.
-  Step 0 selects `#sede` = 99 first and waits for the option list before selecting the tramite; if
-  the live widget populates differently, the wait selector may need adjusting (§4).
+- **`cargaTramites()` timing**: for the **default** office the trámite list is already present on
+  page load (user-verified live), so step 0 does **not** touch `#sede` in the normal case — it only
+  selects "Cualquier oficina" in the abnormal-default branch, which re-fires `cargaTramites()` and is
+  then covered by the wait-for-option. See `2026-06-20-step0-office-select-design.md`.
 - **Positive cita anchor unknown**: the result page was never reached during mapping; the dry run
   must pin down the §5.3 positive selector, else fall back to "no-citas absent AND a known result
   element present" rather than bare negation.
