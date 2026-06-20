@@ -28,38 +28,79 @@
     {
       "id": "actor_4",
       "typing": { "baseDelay": 50, "delayVariance": 20, "mistakeChance": 0 },
-      "cursor": { "moveRandomRange": [90, 190] }
+      "typingPressDelay": [50, 85],
+      "cursor": {
+        "overshootSpread": 3, "overshootRadius": 3,
+        "waitBeforeMove": [40, 120], "waitBeforeClick": [70, 180], "waitBetweenClick": [40, 90],
+        "scrollDelay": [70, 140], "maxScrollStep": 2400, "moveRandomRange": [90, 190]
+      },
+      "pipeline": { "delayBetweenActions": [600, 1100], "delayBeforeFirstAction": [350, 750], "delayBeforeLastAction": [400, 550] }
     },
     {
       "id": "actor_5",
-      "typing": { "baseDelay": 70, "delayVariance": 40, "mistakeChance": 0.03 },
-      "pipeline": { "delayBetweenActions": [1000, 1800] }
+      "typing": { "baseDelay": 75, "delayVariance": 35, "mistakeChance": 0.03 },
+      "typingPressDelay": [70, 115],
+      "cursor": {
+        "overshootSpread": 7, "overshootRadius": 7,
+        "waitBeforeMove": [80, 260], "waitBeforeClick": [150, 360], "waitBetweenClick": [70, 180],
+        "scrollDelay": [140, 260], "maxScrollStep": 1600, "moveRandomRange": [130, 240]
+      },
+      "pipeline": { "delayBetweenActions": [1000, 1800], "delayBeforeFirstAction": [700, 1300], "delayBeforeLastAction": [600, 750] }
     },
     {
       "id": "actor_6",
       "typing": { "baseDelay": 55, "delayVariance": 28, "mistakeChance": 0.015 },
-      "typingPressDelay": [55, 95]
+      "typingPressDelay": [55, 95],
+      "cursor": {
+        "overshootSpread": 5, "overshootRadius": 4,
+        "waitBeforeMove": [45, 160], "waitBeforeClick": [90, 230], "waitBetweenClick": [45, 110],
+        "scrollDelay": [90, 180], "maxScrollStep": 2100, "moveRandomRange": [95, 195]
+      },
+      "pipeline": { "delayBetweenActions": [700, 1300], "delayBeforeFirstAction": [450, 950], "delayBeforeLastAction": [450, 580] }
     },
     {
       "id": "actor_7",
       "typing": { "baseDelay": 65, "delayVariance": 32 },
-      "cursor": { "waitBeforeClick": [120, 280] }
+      "typingPressDelay": [65, 110],
+      "cursor": {
+        "overshootSpread": 6, "overshootRadius": 6,
+        "waitBeforeMove": [60, 210], "waitBeforeClick": [120, 280], "waitBetweenClick": [60, 140],
+        "scrollDelay": [110, 210], "maxScrollStep": 1900, "moveRandomRange": [105, 205]
+      },
+      "pipeline": { "delayBetweenActions": [850, 1550], "delayBeforeFirstAction": [550, 1050], "delayBeforeLastAction": [500, 620] }
     },
     {
       "id": "actor_8",
       "typing": { "baseDelay": 40, "delayVariance": 22, "mistakeChance": 0.005 },
-      "pipeline": { "delayBetweenActions": [500, 1000] }
+      "typingPressDelay": [45, 80],
+      "cursor": {
+        "overshootSpread": 4, "overshootRadius": 3,
+        "waitBeforeMove": [30, 100], "waitBeforeClick": [60, 150], "waitBetweenClick": [35, 80],
+        "scrollDelay": [60, 120], "maxScrollStep": 2500, "moveRandomRange": [80, 170]
+      },
+      "pipeline": { "delayBetweenActions": [500, 1000], "delayBeforeFirstAction": [300, 650], "delayBeforeLastAction": [350, 500] }
     },
     {
       "id": "actor_9",
       "typing": { "baseDelay": 80, "delayVariance": 38, "mistakeChance": 0.025 },
-      "cursor": { "moveRandomRange": [110, 210] }
+      "typingPressDelay": [75, 125],
+      "cursor": {
+        "overshootSpread": 8, "overshootRadius": 8,
+        "waitBeforeMove": [90, 280], "waitBeforeClick": [160, 380], "waitBetweenClick": [80, 190],
+        "scrollDelay": [150, 280], "maxScrollStep": 1500, "moveRandomRange": [110, 210]
+      },
+      "pipeline": { "delayBetweenActions": [1100, 1900], "delayBeforeFirstAction": [750, 1350], "delayBeforeLastAction": [650, 800] }
     },
     {
       "id": "actor_10",
       "typing": { "baseDelay": 58, "delayVariance": 26 },
-      "cursor": { "scrollDelay": [120, 220] },
-      "pipeline": { "delayBeforeLastAction": [600, 700] }
+      "typingPressDelay": [58, 100],
+      "cursor": {
+        "overshootSpread": 5, "overshootRadius": 5,
+        "waitBeforeMove": [55, 190], "waitBeforeClick": [100, 250], "waitBetweenClick": [55, 130],
+        "scrollDelay": [120, 220], "maxScrollStep": 2000, "moveRandomRange": [100, 200]
+      },
+      "pipeline": { "delayBetweenActions": [800, 1450], "delayBeforeFirstAction": [500, 1000], "delayBeforeLastAction": [600, 700] }
     }
   ]
 }
