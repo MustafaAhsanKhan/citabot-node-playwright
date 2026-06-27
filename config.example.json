@@ -1,4 +1,5 @@
 {
+  "baseUrl": "http://localhost:3999",
   "browserProfile": "test",
   "extensions": ["/absolute/path/to/chromixer/extension"],
   "rotateProxyOnTramiteBlock": true,
