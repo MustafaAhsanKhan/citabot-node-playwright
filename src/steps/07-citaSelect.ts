@@ -12,6 +12,9 @@ export const citaSelectStep: Step = {
     before: async (ctx) => {
         const page = ctx.page;
         console.log(`[${StepId.CitaSelect}] Waiting for cita result page to settle...`);
+        // Wait for the previous page's form submit navigation to complete
+        await page.waitForSelector('#btnEnviar', { state: 'hidden', timeout: SELECTOR_TIMEOUT_MS });
+        await page.waitForLoadState('domcontentloaded');
         // Each branch resolves true when its signal becomes visible, or false on timeout — it never
         // throws here. Racing means we never conclude on an unsettled page (spec §5).
         const appeared = (p: Promise<unknown>) => p.then(() => true).catch(() => false);
@@ -27,7 +30,7 @@ export const citaSelectStep: Step = {
                     .waitFor({ state: 'visible', timeout: SELECTOR_TIMEOUT_MS })
             ),
             appeared(
-                page.locator(CITA_POSITIVE_SELECTOR).waitFor({ state: 'visible', timeout: SELECTOR_TIMEOUT_MS })
+                page.locator(CITA_POSITIVE_SELECTOR).first().waitFor({ state: 'visible', timeout: SELECTOR_TIMEOUT_MS })
             ),
         ]);
         if (!settled) throw new RetryError('Cita result page did not settle', 5000);
