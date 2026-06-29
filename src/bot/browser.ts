@@ -14,7 +14,12 @@ const NewBrowser = async (options: BrowserOptions | string) => {
         channel: 'chrome',
         headless: false,
         ignoreHTTPSErrors: true,
-        timeout: 0
+        timeout: 0,
+        args: [
+            '--no-first-run',
+            '--disable-session-crashed-bubble',
+            '--hide-crash-restore-bubble',
+        ],
     };
     if (opts.proxy) {
         launchOptions.proxy = {
