@@ -8,7 +8,7 @@ import { rand, sleep } from '../misc';
 
 const DEFAULT_ENTRY_PATH = '/icpco/citar';
 const ANY_OFFICE_VALUE = '99';
-const TRAMITE_SELECT = '#tramiteGrupo\\[0\\]';
+const TRAMITE_SELECT = '#tramiteGrupo\\[1\\]';
 
 export const selectRegionStep: Step = {
     id: StepId.RegionSelect,
@@ -36,7 +36,8 @@ export const selectRegionStep: Step = {
             // before setting the value, so no explicit move() is needed here. A leading random
             // drift keeps the pointer alive before the first interaction.
             moveRandom(),
-            select('#sede', { value: ANY_OFFICE_VALUE }),
+            // To select specific office
+            // select('#sede', { value: ANY_OFFICE_VALUE }),
             label(
                 // An <option> in a closed <select> has an empty bounding box, so it is never
                 // 'visible' to Playwright — a default waitForSelector would hang for the full
