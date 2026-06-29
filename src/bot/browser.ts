@@ -11,6 +11,7 @@ export interface BrowserOptions {
 const NewBrowser = async (options: BrowserOptions | string) => {
     const opts = typeof options === 'string' ? { userName: options } : options;
     const launchOptions: Parameters<typeof chromium.launchPersistentContext>[1] = {
+        channel: 'chrome',
         headless: false,
         ignoreHTTPSErrors: true,
         timeout: 0
